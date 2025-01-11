@@ -1,0 +1,17 @@
+{
+  "name": "schedulecreator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-eventbridge": "^3.726.1",
+    "@aws-sdk/client-scheduler": "^3.726.1"
+  }
+}

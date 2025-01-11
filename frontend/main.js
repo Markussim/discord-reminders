@@ -3,6 +3,7 @@ const testUsers = [
   { name: "Mack", discordId: "292403753360031745" },
   { name: "Liss", discordId: "400691601011113986" },
   { name: "Svant", discordId: "225636267633803274" },
+  { name: "@ genuine cheese people", discordId: "&690485351302692884" },
 ];
 
 // Sort users by name
