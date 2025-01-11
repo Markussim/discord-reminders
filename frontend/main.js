@@ -67,5 +67,7 @@ document.getElementById("reminderForm").onsubmit = async (event) => {
   document.getElementById("message").value = "";
   document.getElementById("time").value = "";
 
+  renderButtons();
+
   document.getElementById("submit").disabled = false;
 };
