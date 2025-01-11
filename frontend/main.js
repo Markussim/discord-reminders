@@ -19,3 +19,25 @@ for (const user of testUsers) {
   };
   tagShortcuts.appendChild(tag);
 }
+
+const url = "https://xcr2agxdue.execute-api.eu-north-1.amazonaws.com/prod";
+
+document.getElementById("reminderForm").onsubmit = async (event) => {
+  event.preventDefault();
+  const message = document.getElementById("message").value;
+  const time = document.getElementById("time").value;
+
+  // Convert time to ISO string
+  const date = new Date(time);
+  const isoString = date.toISOString();
+
+  const body = {
+    time: isoString,
+    content: message,
+  };
+
+  const response = await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+};

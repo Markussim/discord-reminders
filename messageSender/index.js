@@ -20,7 +20,7 @@ export const handler = async (event) => {
   let webhook = parsedSecret.webhook;
 
   let message = {
-    content: event.body,
+    content: event.message,
   };
 
   await axios.post(webhook, message);
