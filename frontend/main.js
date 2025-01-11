@@ -9,21 +9,43 @@ const testUsers = [
 // Sort users by name
 testUsers.sort((a, b) => a.name.localeCompare(b.name));
 
-const tagShortcuts = document.getElementById("tagShortcuts");
-for (const user of testUsers) {
-  const tag = document.createElement("button");
-  tag.innerHTML = user.name;
-  tag.onclick = () => {
-    const textarea = document.getElementById("message");
-    textarea.value += `<@${user.discordId}>`;
-  };
-  tagShortcuts.appendChild(tag);
+async function renderButtons(messageContent) {
+  const tagShortcuts = document.getElementById("tagShortcuts");
+  tagShortcuts.innerHTML = "";
+  for (const user of testUsers) {
+    const tag = document.createElement("button");
+    tag.innerHTML = user.name;
+
+    if (messageContent?.includes(user.discordId)) {
+      tag.disabled = true;
+    } else {
+      tag.onclick = () => {
+        const textarea = document.getElementById("message");
+        textarea.value += `<@${user.discordId}>`;
+
+        renderButtons(textarea.value);
+      };
+    }
+    tagShortcuts.appendChild(tag);
+  }
 }
+
+renderButtons();
+
+document.getElementById("message").addEventListener("input", (event) => {
+  let message = event.target.value;
+
+  console.log(message);
+  renderButtons(message);
+});
 
 const url = "https://xcr2agxdue.execute-api.eu-north-1.amazonaws.com/prod";
 
 document.getElementById("reminderForm").onsubmit = async (event) => {
   event.preventDefault();
+
+  document.getElementById("submit").disabled = true;
+
   const message = document.getElementById("message").value;
   const time = document.getElementById("time").value;
 
@@ -40,4 +62,10 @@ document.getElementById("reminderForm").onsubmit = async (event) => {
     method: "POST",
     body: JSON.stringify(body),
   });
+
+  // Reset form
+  document.getElementById("message").value = "";
+  document.getElementById("time").value = "";
+
+  document.getElementById("submit").disabled = false;
 };

@@ -37,26 +37,33 @@
         margin-top: 0.5rem;
         padding: 0.5rem;
         font-size: 1rem;
-
         resize: vertical;
       }
-      button {
-        margin-top: 1rem;
-        padding: 0.5rem;
-        font-size: 1rem;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        cursor: pointer;
+
+      textarea {
+        min-height: 100px;
       }
 
       #tagShortcuts {
         display: flex;
         justify-content: center;
+        flex-wrap: wrap;
+        margin: 0 auto;
         margin-top: 2rem;
+        width: 50%;
+      }
+
+      @media (max-width: 768px) {
+        #tagShortcuts {
+          width: 90%;
+        }
       }
 
       #tagShortcuts button {
+        margin-top: 10px;
+      }
+
+      button {
         margin: 0 0.5rem;
         padding: 0.5rem;
         font-size: 1rem;
@@ -64,6 +71,21 @@
         color: white;
         border: none;
         cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+      }
+
+      button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      form button[type="submit"] {
+        margin: 0;
+        width: 100%;
       }
     </style>
 
@@ -87,8 +109,9 @@
         name="message"
         required
         autocomplete="off"
+        maxlength="1000"
       ></textarea>
-      <button type="submit">Remind</button>
+      <button type="submit" id="submit">Remind</button>
     </form>
     <div id="tagShortcuts"></div>
   </body>
