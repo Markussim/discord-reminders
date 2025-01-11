@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Remind someone</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      h1 {
+        text-align: center;
+        margin-top: 2rem;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        width: 50%;
+        margin: 0 auto;
+      }
+
+      @media (max-width: 768px) {
+        form {
+          width: 90%;
+        }
+      }
+
+      label {
+        margin-top: 1rem;
+      }
+      input,
+      textarea {
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        font-size: 1rem;
+
+        resize: vertical;
+      }
+      button {
+        margin-top: 1rem;
+        padding: 0.5rem;
+        font-size: 1rem;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+
+      #tagShortcuts {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+      }
+
+      #tagShortcuts button {
+        margin: 0 0.5rem;
+        padding: 0.5rem;
+        font-size: 1rem;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+    </style>
+
+    <script src="main.js" defer></script>
+  </head>
+  <body>
+    <h1>Remind someone about anything you want</h1>
+    <form id="reminderForm">
+      <label for="time">Time</label>
+      <input
+        id="time"
+        name="time"
+        type="datetime-local"
+        required
+        autocomplete="off"
+      />
+      <br />
+      <label for="message">Message</label>
+      <textarea
+        id="message"
+        name="message"
+        required
+        autocomplete="off"
+      ></textarea>
+      <button type="submit">Remind</button>
+    </form>
+    <div id="tagShortcuts"></div>
+  </body>
+</html>
