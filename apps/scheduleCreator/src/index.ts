@@ -26,9 +26,8 @@ export const handler = async (event: Event) => {
       FlexibleTimeWindow: { Mode: "OFF" },
       GroupName: "reminderGroup",
       Target: {
-        Arn: "arn:aws:lambda:eu-north-1:016131845196:function:messageSender",
-        RoleArn:
-            "arn:aws:iam::016131845196:role/service-role/Amazon_EventBridge_Scheduler_LAMBDA_26cb3b4e42",
+        Arn: process.env.target_lambda_arn!,
+        RoleArn: process.env.invoker_role_arn!,
         Input: input,
       },
     };
