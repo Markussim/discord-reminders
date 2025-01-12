@@ -8,6 +8,7 @@ const ReminderForm = () => {
     const [message, setMessage] = useState<string>('');
     const [time, setTime] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleTagClick = (discordId: string) => {
         setMessage((prev) => `${prev}<@${discordId}>`);
@@ -16,8 +17,17 @@ const ReminderForm = () => {
     const handleSubmit = async (e: Event) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setError(null);
 
-        const isoString = new Date(time).toISOString();
+        const currentTime = new Date();
+        const reminderTime = new Date(time);
+        if (reminderTime <= currentTime) {
+            setError('Please choose a future time for the reminder.');
+            setIsSubmitting(false);
+            return;
+        }
+
+        const isoString = reminderTime.toISOString();
         const body = { time: isoString, content: message };
 
         try {
@@ -25,45 +35,52 @@ const ReminderForm = () => {
                 method: "POST",
                 body: JSON.stringify(body),
             });
+
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
+
             setMessage('');
             setTime('');
         } catch (error) {
             console.error('Error submitting form:', error);
+            setError('Failed to send the reminder. Please try again later.');
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const formStyle = {
-        display: 'flex',
-        flexDirection: 'column',
-        width: '50%',
-        margin: '0 auto',
-    };
-
-    const labelStyle = {
-        marginTop: '1rem',
-    };
-
-    const inputStyle = {
-        marginTop: '0.5rem',
-        padding: '0.5rem',
-        fontSize: '1rem',
-        resize: 'vertical',
-    };
-
-    const buttonStyle = {
-        margin: '0',
-        width: '100%',
-        padding: '0.5rem',
-        fontSize: '1rem',
-        backgroundColor: isSubmitting ? '#ccc' : '#007bff',
-        color: 'white',
-        border: 'none',
-        cursor: isSubmitting ? 'not-allowed' : 'pointer',
+    const styles = {
+        formContainer: {
+            display: 'flex',
+            flexDirection: 'column',
+            width: '50%',
+            margin: '0 auto',
+        },
+        label: {
+            marginTop: '1rem',
+        },
+        input: {
+            marginTop: '0.5rem',
+            padding: '0.5rem',
+            fontSize: '1rem',
+            resize: 'vertical',
+        },
+        button: {
+            margin: '0',
+            width: '100%',
+            padding: '0.5rem',
+            fontSize: '1rem',
+            backgroundColor: isSubmitting ? '#ccc' : '#007bff',
+            color: 'white',
+            border: 'none',
+            cursor: isSubmitting ? 'not-allowed' : 'pointer',
+        },
+        errorMessage: {
+            color: 'red',
+            textAlign: 'center',
+            marginTop: '1rem',
+        },
     };
 
     return (
@@ -71,8 +88,9 @@ const ReminderForm = () => {
             <h1 style={{ textAlign: 'center', marginTop: '2rem' }}>
                 Remind someone about anything you want
             </h1>
-            <form onSubmit={handleSubmit} style={formStyle}>
-                <label htmlFor="time" style={labelStyle}>
+
+            <form onSubmit={handleSubmit} style={styles.formContainer}>
+                <label htmlFor="time" style={styles.label}>
                     Time
                 </label>
                 <input
@@ -82,10 +100,11 @@ const ReminderForm = () => {
                     required
                     value={time}
                     onInput={(e) => setTime((e.target as HTMLInputElement).value)}
-                    style={inputStyle}
+                    style={styles.input}
+                    min={new Date().toISOString().slice(0, 16)} // Prevent pastime selection
                 />
-                <br />
-                <label htmlFor="message" style={labelStyle}>
+
+                <label htmlFor="message" style={styles.label}>
                     Message
                 </label>
                 <textarea
@@ -95,12 +114,16 @@ const ReminderForm = () => {
                     maxLength={1000}
                     value={message}
                     onInput={(e) => setMessage((e.target as HTMLTextAreaElement).value)}
-                    style={{ ...inputStyle, minHeight: '100px' }}
-                ></textarea>
-                <button type="submit" disabled={isSubmitting} style={buttonStyle}>
+                    style={{ ...styles.input, minHeight: '100px' }}
+                />
+
+                <button type="submit" disabled={isSubmitting} style={styles.button}>
                     {isSubmitting ? 'Sending...' : 'Remind'}
                 </button>
             </form>
+
+            {error && <div style={styles.errorMessage}>{error}</div>}
+
             <TagShortcuts message={message} onTagClick={handleTagClick} />
         </div>
     );
