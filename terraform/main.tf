@@ -1,7 +1,6 @@
 provider "aws" {
   region  = var.region
   profile = "velody-dr"
-
 }
 
 terraform {
@@ -27,32 +26,31 @@ data "aws_iam_policy_document" "assume_role" {
   }
 }
 
+
 resource "aws_iam_role" "iam_for_lambda" {
   name               = "iam_for_lambda"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
-# data "archive_file" "lambda" {
-#   type        = "zip"
-#   source_file = "lambda.js"
-#   output_path = "lambda_function_payload.zip"
-# }
+resource "aws_iam_policy_attachment" "secrets_manager_policy_attachment" {
+  name       = "secrets_manager_policy_attachment"
+  roles      = ["${aws_iam_role.iam_for_lambda.name}"]
+  policy_arn = "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+}
 
-# resource "aws_lambda_function" "test_lambda" {
-#   # If the file is not in the current working directory you will need to include a
-#   # path.module in the filename.
-#   filename      = "lambda_function_payload.zip"
-#   function_name = "lambda_function_name"
-#   role          = aws_iam_role.iam_for_lambda.arn
-#   handler       = "index.test"
+data "archive_file" "message_sender_lambda_files" {
+  type        = "zip"
+  source_dir  = "../apps/messageSender/dist/"
+  output_path = "lambda_function_payload.zip"
+}
 
-#   source_code_hash = data.archive_file.lambda.output_base64sha256
+resource "aws_lambda_function" "message_sender_lambda" {
+  filename      = "lambda_function_payload.zip"
+  function_name = "message_sender"
+  role          = aws_iam_role.iam_for_lambda.arn
+  handler       = "index.handler"
 
-#   runtime = "nodejs18.x"
+  source_code_hash = data.archive_file.message_sender_lambda_files.output_base64sha256
 
-#   environment {
-#     variables = {
-#       foo = "bar"
-#     }
-#   }
-# }
+  runtime = "nodejs22.x"
+}

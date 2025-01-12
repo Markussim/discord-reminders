@@ -16,7 +16,7 @@ export const handler = async (event: Event) => {
   });
 
   const response = await client.send(
-      new GetSecretValueCommand({ SecretId: secret_name })
+    new GetSecretValueCommand({ SecretId: secret_name })
   );
 
   const parsedSecret = JSON.parse(response.SecretString!);
