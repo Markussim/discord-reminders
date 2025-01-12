@@ -4,28 +4,29 @@ import {
 } from "@aws-sdk/client-secrets-manager";
 import axios from "axios";
 
-export const handler = async (event) => {
+interface Event {
+  message: string;
+}
+
+export const handler = async (event: Event) => {
   const secret_name = "prod/reminder";
 
   const client = new SecretsManagerClient({
     region: "eu-north-1",
   });
 
-  let response = await client.send(
-    new GetSecretValueCommand({ SecretId: secret_name })
+  const response = await client.send(
+      new GetSecretValueCommand({ SecretId: secret_name })
   );
 
-  let parsedSecret = JSON.parse(response.SecretString);
+  const parsedSecret = JSON.parse(response.SecretString!);
+  const webhook: string = parsedSecret.webhook;
 
-  let webhook = parsedSecret.webhook;
-
-  let message = {
+  const message = {
     content: event.message,
   };
 
   await axios.post(webhook, message);
 
-  return { statusCode: 200, body: JSON.stringify(webhook) };
+  return { statusCode: 200, body: JSON.stringify({ webhook }) };
 };
-
-// handler({ body: "Hello, World!" });
