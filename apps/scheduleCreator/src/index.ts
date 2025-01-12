@@ -1,65 +1,54 @@
 import {
   CreateScheduleCommand,
   SchedulerClient,
+  CreateScheduleCommandInput,
 } from "@aws-sdk/client-scheduler";
-// import { LambdaClient, AddPermissionCommand } from "@aws-sdk/client-lambda";
 
-export const handler = async (event) => {
+interface Event {
+  time: string;
+  content: string;
+}
+
+export const handler = async (event: Event) => {
   try {
-    // Create an EventBridge client for lambda function "messageSender" with body and time
-    let body = event;
-    let time = new Date(body.time);
+    const time = new Date(event.time);
+    console.log(event.time);
 
-    console.log(body.time);
+    const client = new SchedulerClient({ region: "eu-north-1" });
+    const input = JSON.stringify({ message: event.content });
 
-    const client = new SchedulerClient({
-      region: "eu-north-1",
-    });
-
-    const input = JSON.stringify({ message: body.content });
-
-    // Create a new schedule
-    const params = {
+    const params: CreateScheduleCommandInput = {
       Name: "reminder" + Date.now(),
       Description: "Send a reminder",
       ScheduleExpression: dateToAt(time),
-      Description: "Send a reminder",
       State: "ENABLED",
       ActionAfterCompletion: "DELETE",
-      FlexibleTimeWindow: {
-        Mode: "OFF",
-      },
+      FlexibleTimeWindow: { Mode: "OFF" },
       GroupName: "reminderGroup",
-      State: "ENABLED",
       Target: {
         Arn: "arn:aws:lambda:eu-north-1:016131845196:function:messageSender",
         RoleArn:
-          "arn:aws:iam::016131845196:role/service-role/Amazon_EventBridge_Scheduler_LAMBDA_26cb3b4e42",
+            "arn:aws:iam::016131845196:role/service-role/Amazon_EventBridge_Scheduler_LAMBDA_26cb3b4e42",
         Input: input,
       },
     };
 
-    let response = await client.send(new CreateScheduleCommand(params));
+    const response = await client.send(new CreateScheduleCommand(params));
+    console.log("Schedule created:", response);
 
     return { statusCode: 200, body: "Success" };
   } catch (error) {
-    console.log(error);
+    console.error("Error creating schedule:", error);
     return { statusCode: 500, body: "Internal Server Error" };
   }
 };
 
-// Test event
-// console.log(
-//   await handler({
-//     body: '{"time":"2025-01-11T16:35:00Z","content":"Hello, World!"}',
-//   })
-// );
-
-function dateToAt(date) {
+// Helper function to generate ScheduleExpression for EventBridge Scheduler
+function dateToAt(date: Date): string {
   if (!(date instanceof Date) || isNaN(date.getTime())) {
     throw new Error("Invalid Date object");
   }
-  const pad = (number) => number.toString().padStart(2, "0");
+  const pad = (number: number) => number.toString().padStart(2, "0");
   const year = date.getUTCFullYear();
   const month = pad(date.getUTCMonth() + 1); // Months are zero-indexed
   const day = pad(date.getUTCDate());
@@ -69,3 +58,6 @@ function dateToAt(date) {
 
   return `at(${year}-${month}-${day}T${hours}:${minutes}:${seconds})`;
 }
+
+// Test the function (Uncomment for local testing)
+// handler({ time: "2025-01-11T16:35:00Z", content: "Hello, World!" });
